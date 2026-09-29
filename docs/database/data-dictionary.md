@@ -59,6 +59,12 @@ Usuarios con acceso a la plataforma. Centraliza autenticación, rol y estado de 
 
 Extensión de `users` para información propia de clientes que realizan compras.
 
+Todo usuario debe tener un cliente asociado, independientemente de su rol (`admin`, `staff` o `customer`). `customers.user_id` es una clave foránea única a `users.id`; al eliminar un usuario, su cliente se elimina en cascada para mantener compatible la eliminación de cuenta existente.
+
+El teléfono admite `NULL` en la base de datos para cuentas de seeders, pero es obligatorio en la interfaz y la lógica de creación/edición de usuarios que se implementará en los siguientes incrementos. `UserObserver` crea automáticamente el cliente con teléfono nulo en el evento `created` de Eloquent. Las inserciones directas o con eventos deshabilitados no ejecutan el observer. Los flujos de creación deberán usar una transacción para que ambas escrituras se confirmen o reviertan juntas; el observer se ejecuta dentro de esa transacción, no después del commit.
+
+Los valores de rol se centralizan en `App\Enums\RoleEnum`; la migración de usuarios usa `RoleEnum::CUSTOMER->value` como valor predeterminado.
+
 | Campo | Tipo | Restricciones | Descripción |
 | --- | --- | --- | --- |
 | `id` | `bigint` | PK; Autoincremental | Identificador único autoincremental. |
